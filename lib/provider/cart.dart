@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class CartItem {
- final String id;
- final String title;
- final double price;
- final int quantity;
+  final String id;
+  final String title;
+  final double price;
+  final int quantity;
 
   CartItem({
     @required this.id,
@@ -23,6 +23,14 @@ class Cart with ChangeNotifier {
 
   int get itemsCount {
     return _items.length;
+  }
+
+  double get totalPrice {
+    var total = 0.0;
+    _items.forEach((key, cartItem) {
+      total += cartItem.price * cartItem.quantity;
+    });
+    return total;
   }
 
   void addItem(String productId, String title, double price) {
@@ -44,6 +52,10 @@ class Cart with ChangeNotifier {
               price: price,
               quantity: 1));
     }
+    notifyListeners();
+  }
+  void removeItem (String id){
+    _items.remove(id);
     notifyListeners();
   }
 }

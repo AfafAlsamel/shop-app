@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/provider/cart.dart';
-import 'package:shop_app/widget/badge.dart';
 
+import '../provider/cart.dart';
+import '../screens/cart_screen.dart';
+import '../widget/badge.dart';
 import '../widget/products_grid.dart';
 
 enum filterOptins { Favorit, Alll }
@@ -17,8 +18,6 @@ class _ProductScreenState extends State<ProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
-
     return Scaffold(
       appBar: AppBar(
         title: Text('My Shop'),
@@ -52,7 +51,9 @@ class _ProductScreenState extends State<ProductScreen> {
             ),
             child: IconButton(
               icon: Icon(Icons.shopping_cart),
-              onPressed: (){},
+              onPressed: () {
+                return Navigator.of(context).pushNamed(CartScreen.namedRoute);
+              },
             ),
           )
         ],
