@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../widget/app_drawer.dart';
 import '../provider/cart.dart';
 import '../screens/cart_screen.dart';
 import '../widget/badge.dart';
@@ -55,9 +56,12 @@ class _ProductScreenState extends State<ProductScreen> {
                 return Navigator.of(context).pushNamed(CartScreen.namedRoute);
               },
             ),
-          )
+          ),
+        
         ],
+        
       ),
+      drawer: AppDrawer(),
       body: ProductsGrid(_showFavs),
     );
   }
