@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/provider/product.dart';
+
+import '../provider/product.dart';
+import '../provider/products.dart';
 
 class EditUserProductScreen extends StatefulWidget {
   static const namedRout = '/edit-product';
@@ -13,8 +15,41 @@ class _EditUserProductScreenState extends State<EditUserProductScreen> {
   final _descriptionFocusedNode = FocusNode();
   final _imageUrlTextController = TextEditingController();
   final _form = GlobalKey<FormState>();
-  var _emptyProduct =
-      Product(id: null, title: '', price: 0, imageUrl: '', description: '');
+  var _emptyProduct = Product(
+    id: null,
+    title: '',
+    price: 0,
+    imageUrl: '',
+    description: '',
+  );
+  var _initValues = {
+    'title': '',
+    'description': '',
+    'price': '',
+    'imageUrl': '',
+  };
+  var _isInit = true;
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      final productId = ModalRoute.of(context).settings.arguments as String;
+      if (productId != null) {
+        _emptyProduct =
+            Provider.of<Products>(context, listen: false).findById(productId);
+        _initValues = {
+          'title': _emptyProduct.title,
+          'description': _emptyProduct.description,
+          'price': _emptyProduct.price.toString(),
+          // 'imageUrl': _editedProduct.imageUrl,
+          'imageUrl': '',
+        };
+        _imageUrlTextController.text = _emptyProduct.imageUrl;
+      }
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
 
   @override
   void dispose() {
@@ -30,10 +65,14 @@ class _EditUserProductScreenState extends State<EditUserProductScreen> {
       return;
     }
     _form.currentState.save();
-    print(_emptyProduct.title);
-    print(_emptyProduct.description);
-    print(_emptyProduct.price);
-    print(_emptyProduct.imageUrl);
+
+    if (_emptyProduct.id != null) {
+      Provider.of<Products>(context, listen: false)
+          .updateProduct(_emptyProduct.id, _emptyProduct);
+    } else {
+      Provider.of<Products>(context, listen: false).addProduct(_emptyProduct);
+    }
+    Navigator.of(context).pop();
   }
 
   @override
@@ -42,9 +81,11 @@ class _EditUserProductScreenState extends State<EditUserProductScreen> {
       appBar: AppBar(
         title: Text('Edit Product'),
         actions: [
-          IconButton(icon: Icon(Icons.save), onPressed: (){
-            _submmitedForm();
-          })
+          IconButton(
+              icon: Icon(Icons.save),
+              onPressed: () {
+                _submmitedForm();
+              })
         ],
       ),
       body: Padding(
@@ -54,6 +95,7 @@ class _EditUserProductScreenState extends State<EditUserProductScreen> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _initValues['title'],
                 decoration: InputDecoration(labelText: 'Title Of Your Product'),
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (_) {
@@ -62,7 +104,7 @@ class _EditUserProductScreenState extends State<EditUserProductScreen> {
                 onSaved: (value) {
                   _emptyProduct = Product(
                       title: value,
-                      id: null,
+                      id: _emptyProduct.id,
                       description: _emptyProduct.description,
                       price: _emptyProduct.price,
                       imageUrl: _emptyProduct.imageUrl);
@@ -75,6 +117,7 @@ class _EditUserProductScreenState extends State<EditUserProductScreen> {
                 },
               ),
               TextFormField(
+                initialValue: _initValues['price'],
                 decoration: InputDecoration(labelText: 'Price Of Your Product'),
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.number,
@@ -85,7 +128,7 @@ class _EditUserProductScreenState extends State<EditUserProductScreen> {
                 onSaved: (value) {
                   _emptyProduct = Product(
                       title: _emptyProduct.title,
-                      id: null,
+                      id: _emptyProduct.id,
                       description: _emptyProduct.description,
                       price: double.parse(value),
                       imageUrl: _emptyProduct.imageUrl);
@@ -104,6 +147,7 @@ class _EditUserProductScreenState extends State<EditUserProductScreen> {
                 },
               ),
               TextFormField(
+                initialValue: _initValues['description'],
                 decoration:
                     InputDecoration(labelText: 'Description Of Your Product'),
                 keyboardType: TextInputType.multiline,
@@ -112,7 +156,7 @@ class _EditUserProductScreenState extends State<EditUserProductScreen> {
                 onSaved: (value) {
                   _emptyProduct = Product(
                       title: _emptyProduct.title,
-                      id: null,
+                      id: _emptyProduct.id,
                       description: value,
                       price: _emptyProduct.price,
                       imageUrl: _emptyProduct.imageUrl);
@@ -157,11 +201,12 @@ class _EditUserProductScreenState extends State<EditUserProductScreen> {
                       },
                       onSaved: (value) {
                         _emptyProduct = Product(
-                            title: _emptyProduct.title,
-                            id: null,
-                            description: _emptyProduct.description,
-                            price: _emptyProduct.price,
-                            imageUrl: value);
+                          title: _emptyProduct.title,
+                          description: _emptyProduct.description,
+                          price: _emptyProduct.price,
+                          imageUrl: value,
+                          id: _emptyProduct.id,
+                        );
                       },
                       validator: (value) {
                         if (value.isEmpty) {
