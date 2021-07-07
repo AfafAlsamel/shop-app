@@ -10,12 +10,13 @@ class UserProductScreen extends StatelessWidget {
   static const namedRout = '/product-user';
 
   Future<void> _refreshProducts(BuildContext context) async {
-    await Provider.of<Products>(context, listen: false).fetchData();
+    await Provider.of<Products>(context, listen: false).fetchData(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final productData = Provider.of<Products>(context);
+    //final productData = Provider.of<Products>(context);
+    print('rebuilding...');
 
     return Scaffold(
       appBar: AppBar(
@@ -30,23 +31,33 @@ class UserProductScreen extends StatelessWidget {
         ],
       ),
       drawer: AppDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshProducts(context),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: ListView.builder(
-            itemCount: productData.item.length,
-            itemBuilder: (_, index) {
-              return Column(children: [
-                UserProductItem(
-                  productData.item[index].id,
-                  productData.item[index].title,
-                  productData.item[index].imageUrl,
-                )
-              ]);
-            },
-          ),
-        ),
+      body: FutureBuilder(
+        future: _refreshProducts(context),
+        builder: (ctx, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () => _refreshProducts(context),
+                    child: Consumer<Products>(
+                      builder: (ctx, productsData, _) => Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: ListView.builder(
+                          itemCount: productsData.item.length,
+                          itemBuilder: (_, index) {
+                            return Column(children: [
+                              UserProductItem(
+                                productsData.item[index].id,
+                                productsData.item[index].title,
+                                productsData.item[index].imageUrl,
+                              )
+                            ]);
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
       ),
     );
   }

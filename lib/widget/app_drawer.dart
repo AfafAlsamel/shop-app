@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shop_app/screens/user_product.dart';
 
 import '../screens/orders_screens.dart';
+import '../provider/auth.dart';
 
 class AppDrawer extends StatelessWidget {
   @override
@@ -30,13 +32,24 @@ class AppDrawer extends StatelessWidget {
                   .pushReplacementNamed(OrdersScreen.namedRout);
             },
           ),
-           Divider(),
+          Divider(),
           ListTile(
             leading: Icon(Icons.edit),
             title: Text('My products'),
             onTap: () {
               Navigator.of(context)
                   .pushReplacementNamed(UserProductScreen.namedRout);
+            },
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.exit_to_app),
+            title: Text('Logout'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed('/');
+
+              Provider.of<Auth>(context, listen: false).logOut();
             },
           ),
         ],
